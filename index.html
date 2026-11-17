@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="description" content="Strict, demo-only market setup analyzer.">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Quotex Signal Pro</title>
+<style>
+:root{color-scheme:dark;--bg:#090e1b;--panel:#111a2d;--panel2:#17233a;--line:#263650;--muted:#9aabc4;--text:#edf3ff;--green:#2dd4a0;--red:#ff647c;--gold:#f5c76b;--blue:#7aa8ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#1c3155 0,transparent 55%),var(--bg);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:980px;margin:auto;padding:20px 16px 48px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#274c83,#16233d);display:grid;place-items:center;font-weight:900;color:#bcd4ff;border:1px solid #3b5c8d}
+h1{font-size:19px;margin:0;letter-spacing:.5px}.sub{font-size:12px;color:var(--muted);margin-top:3px}.pill{border:1px solid #315e57;background:#102b2a;color:#8df0ce;padding:7px 10px;border-radius:99px;font-size:11px;font-weight:800;letter-spacing:.6px}
+.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:14px}.card{background:linear-gradient(160deg,#141f34,#0f1728);border:1px solid var(--line);border-radius:18px;padding:17px;box-shadow:0 12px 35px #0003}
+.label{color:var(--muted);font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase}.signal{min-height:220px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.signalWord{font-size:54px;font-weight:900;letter-spacing:-2px;margin:8px 0}.neutral{color:var(--gold)}.up{color:var(--green)}.down{color:var(--red)}
+.bigline{font-size:13px;color:var(--muted);max-width:460px;line-height:1.5}.score{font-size:28px;font-weight:800;margin:7px 0 2px}.meter{height:7px;background:#26344b;border-radius:10px;overflow:hidden;width:min(330px,90%);margin:10px auto}.meter>i{display:block;height:100%;background:linear-gradient(90deg,#f5c76b,#2dd4a0);width:0}
+.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}select,input,textarea,button{font:inherit}select,input,textarea{width:100%;background:#0b1425;color:var(--text);border:1px solid #30415d;border-radius:10px;padding:11px;outline:none}button{border:0;border-radius:11px;padding:12px 14px;font-weight:800;cursor:pointer}.primary{background:linear-gradient(135deg,#4279d5,#3155a1);color:white}.secondary{background:#202e46;color:#dbe7ff;border:1px solid #344967}.warn{background:#2a2418;color:#f5d58d;border:1px solid #65502a}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:13px}.section{margin-top:14px}.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.check{background:#0c1526;border:1px solid #24334c;border-radius:11px;padding:10px}.check b{display:block;font-size:13px}.check small{color:var(--muted);font-size:11px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;background:#66758d}.dot.good{background:var(--green)}.dot.bad{background:var(--red)}
+.note{color:var(--muted);font-size:12px;line-height:1.55}.notice{border-left:3px solid var(--gold);padding:10px 12px;background:#28231666;border-radius:0 9px 9px 0;margin-top:12px;color:#e8d5a6;font-size:12px;line-height:1.5}
+.history{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}.history th,.history td{text-align:left;padding:9px 6px;border-bottom:1px solid #263650}.history th{color:var(--muted);font-weight:700}
+textarea{min-height:115px;resize:vertical;font:12px ui-monospace,monospace}.foot{text-align:center;color:#74849c;font-size:11px;margin:20px 0}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.signal{min-height:190px}.wrap{padding:15px 12px 35px}.signalWord{font-size:48px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="logo">QP</div><div><h1>QUOTEX SIGNAL PRO</h1><div class="sub">Strict setup analyzer · Demo only</div></div></div>
+    <div class="pill">STRICT MODE ON</div>
+  </header>
+  <div class="grid">
+    <section class="card signal">
+      <div class="label">Current decision</div>
+      <div id="decision" class="signalWord neutral">NO TRADE</div>
+      <div id="reason" class="bigline">Connect market candles or load the built-in demo set. Weak or conflicting setups are rejected.</div>
+      <div class="score" id="score">—</div>
+      <div class="label">Setup quality score · not win probability</div>
+      <div class="meter"><i id="meter"></i></div>
+      <div class="note" id="signalMeta">No verified market feed connected</div>
+    </section>
+    <section class="card">
+      <div class="label">Analysis settings</div>
+      <div class="controls">
+        <div><label for="asset">Market / pair</label><select id="asset"><option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option><option>AUD/USD</option><option>USD/CAD</option><option>EUR/JPY</option><option>BTC/USDT</option><option>Custom CSV</option></select></div>
+        <div><label for="tf">Candle timeframe</label><select id="tf"><option value="1m">1 minute</option><option value="5m">5 minutes</option><option value="15m">15 minutes</option></select></div>
+        <div><label for="expiry">Practice expiry</label><select id="expiry"><option>1 minute</option><option selected>3 minutes</option><option>5 minutes</option></select></div>
+        <div><label for="source">Data source</label><select id="source"><option value="csv">Imported OHLC candles</option><option value="demo">Built-in simulated demo</option></select></div>
+      </div>
+      <div class="actions">
+        <button class="primary" id="analyze">Analyze candles</button>
+        <button class="secondary" id="demo">Load demo candles</button>
+      </div>
+      <div class="notice">This app does not connect to Quotex, place trades, or verify Quotex OTC prices. A signal is not a promise of a winning trade.</div>
+    </section>
+  </div>
+  <section class="card section">
+    <div class="label">Confirmation checklist</div>
+    <div class="checks" id="checks">
+      <div class="check"><b><span class="dot"></span>Trend filter</b><small>Waiting for candle data</small></div>
+      <div class="check"><b><span class="dot"></span>Momentum</b><small>Waiting for candle data</small></div>
+      <div class="check"><b><span class="dot"></span>Volatility</b><small>Waiting for candle data</small></div>
+      <div class="check"><b><span class="dot"></span>Candle confirmation</b><small>Waiting for candle data</small></div>
+    </div>
+  </section>
+  <section class="card section">
+    <div class="label">Import candle data (CSV)</div>
+    <p class="note">Paste at least 60 chronological OHLC rows. Accepted headers: <b>time,open,high,low,close</b>. No headers is also accepted if each row is time,open,high,low,close. Use completed candles only.</p>
+    <textarea id="csv" placeholder="time,open,high,low,close&#10;2026-11-17 10:00,1.1600,1.1610,1.1595,1.1608&#10;..."></textarea>
+    <div class="actions"><button class="secondary" id="import">Use pasted CSV</button><button class="secondary" id="clear">Clear</button></div>
+    <p class="note">Data must come from a source that matches the instrument and timeframe you are viewing. Regular-market data does not represent Quotex OTC prices.</p>
+  </section>
+  <section class="card section">
+    <div class="label">Signal history</div>
+    <p class="note">History is stored only in this browser on this device. It records app decisions, not verified trade outcomes.</p>
+    <table class="history"><thead><tr><th>Time</th><th>Pair</th><th>Decision</th><th>Score</th><th>Data</th></tr></thead><tbody id="history"><tr><td colspan="5" class="note">No analyses yet</td></tr></tbody></table>
+    <div class="actions"><button class="secondary" id="export">Export history CSV</button><button class="secondary" id="reset">Clear history</button></div>
+  </section>
+  <div class="foot">QUOTEX SIGNAL PRO · Independent educational tool · Not financial advice</div>
+</div>
+<script>
+let candles=[], dataLabel="No data";
+const $=id=>document.getElementById(id);
+function avg(a){return a.reduce((x,y)=>x+y,0)/a.length}
+function ema(values,period){let k=2/(period+1),out=[values[0]];for(let i=1;i<values.length;i++)out.push(values[i]*k+out[i-1]*(1-k));return out}
+function rsi(values,p=14){let gains=0,losses=0;for(let i=values.length-p;i<values.length;i++){let d=values[i]-values[i-1];if(d>0)gains+=d;else losses-=d}if(losses===0)return 100;let rs=(gains/p)/(losses/p);return 100-100/(1+rs)}
+function macdHist(v){let e12=ema(v,12),e26=ema(v,26),line=v.map((_,i)=>e12[i]-e26[i]),sig=ema(line.slice(25),9);return line[line.length-1]-sig[sig.length-1]}
+function analyze(){
+ if(candles.length<60){renderNo("Need at least 60 valid completed candles. Import data or load demo candles.");return}
+ const c=candles.map(x=>x.close), last=candles.at(-1), prev=candles.at(-2);
+ const e9=ema(c,9).at(-1),e21=ema(c,21).at(-1),e50=ema(c,50).at(-1),rv=rsi(c),mh=macdHist(c);
+ const ranges=candles.slice(-20).map(x=>x.high-x.low), atr=avg(ranges), avgRange=avg(ranges.slice(0,19));
+ const body=Math.abs(last.close-last.open), range=Math.max(last.high-last.low,1e-12), bodyRatio=body/range;
+ const bullish=last.close>last.open&&last.close>prev.close, bearish=last.close<last.open&&last.close<prev.close;
+ const trendUp=e9>e21&&e21>e50&&last.close>e9,trendDown=e9<e21&&e21<e50&&last.close<e9;
+ const momUp=rv>=52&&rv<=68&&mh>0,momDown=rv<=48&&rv>=32&&mh<0;
+ const volOK=atr>0&&avgRange>0&&atr/avgRange>=0.65&&atr/avgRange<=1.8;
+ const candleUp=bullish&&bodyRatio>=0.55,candleDown=bearish&&bodyRatio>=0.55;
+ const up=[trendUp,momUp,volOK,candleUp].filter(Boolean).length,down=[trendDown,momDown,volOK,candleDown].filter(Boolean).length;
+ let dir="NO TRADE",score=Math.max(up,down)*25,why="Strict filter rejected this setup: all four independent checks must agree.";
+ if(up===4){dir="UP";why="All four strict checks align bullishly. This is a setup-quality score, not a probability of winning."}
+ if(down===4){dir="DOWN";why="All four strict checks align bearishly. This is a setup-quality score, not a probability of winning."}
+ const checks=[
+  ["Trend filter",trendUp?"Bullish EMA 9 > 21 > 50":trendDown?"Bearish EMA 9 < 21 < 50":"No aligned EMA trend"],
+  ["Momentum",momUp?"Bullish RSI + MACD":momDown?"Bearish RSI + MACD":"Momentum not aligned"],
+  ["Volatility",volOK?"Within configured volatility range":"Volatility outside filter"],
+  ["Candle confirmation",candleUp?"Strong bullish candle":candleDown?"Strong bearish candle":"No strong directional candle"]
+ ];
+ $("checks").innerHTML=checks.map(([n,d],i)=>`<div class="check"><b><span class="dot ${((i===0&&(trendUp||trendDown))||(i===1&&(momUp||momDown))||(i===2&&volOK)||(i===3&&(candleUp||candleDown)))?"good":"bad"}"></span>${n}</b><small>${d}</small></div>`).join("");
+ $("decision").textContent=dir;$("decision").className="signalWord "+(dir==="UP"?"up":dir==="DOWN"?"down":"neutral");
+ $("reason").textContent=why;$("score").textContent=score+"/100";$("meter").style.width=score+"%";
+ $("signalMeta").textContent=`${$("asset").value} · ${$("tf").selectedOptions[0].text} · ${candles.length} candles · ${dataLabel}`;
+ saveHistory({time:new Date().toLocaleString(),pair:$("asset").value,decision:dir,score,data:dataLabel});
+}
+function renderNo(msg){$("decision").textContent="NO TRADE";$("decision").className="signalWord neutral";$("reason").textContent=msg;$("score").textContent="—";$("meter").style.width="0";$("signalMeta").textContent="No valid analysis";$("checks").innerHTML=["Trend filter","Momentum","Volatility","Candle confirmation"].map(x=>`<div class="check"><b><span class="dot"></span>${x}</b><small>Waiting for valid data</small></div>`).join("")}
+function parseCSV(s){let lines=s.trim().split(/\r?\n/).filter(Boolean);if(lines.length&&/open/i.test(lines[0]))lines.shift();return lines.map(line=>{let a=line.split(",").map(x=>x.trim());if(a.length<5)throw Error("Each CSV row needs time, open, high, low, close.");let n=a.slice(-4).map(Number);if(n.some(x=>!Number.isFinite(x)))throw Error("CSV contains a non-numeric OHLC value.");let [o,h,l,c]=n;if(h<Math.max(o,c)||l>Math.min(o,c)||h<l)throw Error("Invalid OHLC row: high/low do not contain open and close.");return {time:a[0],open:o,high:h,low:l,close:c}})}
+function demoData(){let p=1.08;let arr=[];for(let i=0;i<90;i++){let drift=i<45?.00010:.00013;let o=p;let wave=Math.sin(i/4)*.00013;let c=o+drift+wave+(Math.sin(i*2.1)*.00006);let h=Math.max(o,c)+.00008,l=Math.min(o,c)-.00008;arr.push({time:i,open:o,high:h,low:l,close:c});p=c}return arr}
+function getHist(){try{return JSON.parse(localStorage.getItem("qsp_history")||"[]")}catch{return []}}
+function saveHistory(row){let h=getHist();h.unshift(row);h=h.slice(0,30);localStorage.setItem("qsp_history",JSON.stringify(h));drawHistory()}
+function drawHistory(){let h=getHist();$("history").innerHTML=h.length?h.map(x=>`<tr><td>${x.time}</td><td>${x.pair}</td><td class="${x.decision==="UP"?"up":x.decision==="DOWN"?"down":"neutral"}">${x.decision}</td><td>${x.score}</td><td>${x.data}</td></tr>`).join(""):'<tr><td colspan="5" class="note">No analyses yet</td></tr>'}
+$("demo").onclick=()=>{candles=demoData();dataLabel="SIMULATED DEMO";$("source").value="demo";analyze()};
+$("analyze").onclick=()=>analyze();
+$("import").onclick=()=>{try{candles=parseCSV($("csv").value);dataLabel="IMPORTED CSV";$("source").value="csv";analyze()}catch(e){renderNo(e.message)}};
+$("clear").onclick=()=>{$("csv").value="";candles=[];renderNo("Import candle data or load the built-in simulated demo set.")};
+$("reset").onclick=()=>{localStorage.removeItem("qsp_history");drawHistory()};
+$("export").onclick=()=>{let rows=[["time","pair","decision","score","data"],...getHist().map(x=>[x.time,x.pair,x.decision,x.score,x.data])];let csv=rows.map(r=>r.map(x=>'"'+String(x).replaceAll('"','""')+'"').join(",")).join("\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="quotex-signal-history.csv";a.click();URL.revokeObjectURL(a.href)};
+drawHistory();renderNo("Ready. Import completed OHLC candles or load simulated demo data. Simulated data is not a market feed.");
+if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+</body></html>
